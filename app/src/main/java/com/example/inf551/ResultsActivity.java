@@ -81,7 +81,7 @@ public class ResultsActivity extends AppCompatActivity {
         Query query;
 //        query = dbRef.orderByChild("description").
 //                    equalTo(itemText.getText().toString());
-//        search = "Bangkok";
+        search = "Los Angeles";
         search = capitalizeString(search.toLowerCase());
         String name = " '" + search + "'";
 
@@ -99,15 +99,14 @@ public class ResultsActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> snapshotIterator = dataSnapshot.getChildren();
                 Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
-                data.add(iterator.next());
 //                dataSnapshot = dataSnapshot.child("city");
 //                Iterable<DataSnapshot> snapshotIterator = dataSnapshot.getChildren();
 //                Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
-//                while (iterator.hasNext()) {
-//                    DataSnapshot snapshot = (DataSnapshot) iterator.next();
-//                    data.add(snapshot);
+                while (iterator.hasNext()) {
+                    DataSnapshot snapshot = (DataSnapshot) iterator.next();
+                    data.add(snapshot);
                     Log.d(TAG, dataSnapshot.toString());
-//                }
+                }
                 populateTable();
             }
 
@@ -123,45 +122,66 @@ public class ResultsActivity extends AppCompatActivity {
         table.removeAllViews();
         progressBar.hide();
 
-        Iterable<DataSnapshot> snapshotIterator = data.get(0).getChildren();
-        Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
 
-        for (int i = 0; i < country_hdrs.length; i++) {
-            DataSnapshot snapshot = (DataSnapshot) iterator.next();
+        for (int n = 0; n < data.size(); n++) {
+            Iterable<DataSnapshot> snapshotIterator = data.get(n).getChildren();
+            Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
 
-            final TableRow row = new TableRow(this);
-            row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+            for (int i = 0; i < country_hdrs.length; i++) {
+                DataSnapshot snapshot = (DataSnapshot) iterator.next();
 
-            final TextView text1 = new TextView(this);
-            text1.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-            text1.setGravity(Gravity.CENTER);
-            text1.setTextSize(18);
-            text1.setPadding(5, 5, 5, 5);
+                final TableRow row = new TableRow(this);
+                row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
-            // Set key here
-            String key = country_hdrs[i];
-            text1.setText(key);
-            text1.setBackgroundColor(Color.parseColor("#f8f8f8"));
-            row.addView(text1);
+                final TextView text1 = new TextView(this);
+                text1.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                text1.setGravity(Gravity.CENTER);
+                text1.setTextSize(18);
+                text1.setPadding(5, 5, 5, 5);
 
-            final TextView text2 = new TextView(this);
-            text2.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-            text2.setGravity(Gravity.CENTER);
-            text2.setTextSize(18);
-            text2.setPadding(5, 5, 5, 5);
+                // Set key here
+                String key = (String) snapshot.getKey();
+                //    String key = country_hdrs[i];
+                text1.setText(key);
+                text1.setBackgroundColor(Color.parseColor("#f8f8f8"));
+                row.addView(text1);
 
-            // Set value here
-            Log.d(TAG, snapshot.toString());
-            String value = (String) snapshot.getValue();
-            StringBuilder formatter = new StringBuilder(value);
-            formatter.delete(0,2);
-            formatter.deleteCharAt(formatter.length()-1);
-            value = formatter.toString();
-            text2.setBackgroundColor(Color.parseColor("#ffffff"));
-            text2.setText(value);
-            row.addView(text2);
+                final TextView text2 = new TextView(this);
+                text2.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                text2.setGravity(Gravity.CENTER);
+                text2.setTextSize(18);
+                text2.setPadding(5, 5, 5, 5);
 
-            table.addView(row);
+                // Set value here
+                Log.d(TAG, snapshot.toString());
+                String value = (String) snapshot.getValue();
+                StringBuilder formatter = new StringBuilder(value);
+                formatter.delete(0, 2);
+                formatter.deleteCharAt(formatter.length() - 1);
+                value = formatter.toString();
+                text2.setBackgroundColor(Color.parseColor("#ffffff"));
+                text2.setText(value);
+                row.addView(text2);
+
+                table.addView(row);
+            }
+            // add separator row
+            final TableRow trSep = new TableRow(this);
+            TableLayout.LayoutParams trParamsSep = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                    TableLayout.LayoutParams.WRAP_CONTENT);
+            trParamsSep.setMargins(5, 5, 5, 5);
+
+            trSep.setLayoutParams(trParamsSep);
+            TextView tvSep = new TextView(this);
+            TableRow.LayoutParams tvSepLay = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                    TableRow.LayoutParams.WRAP_CONTENT);
+            tvSepLay.span = 4;
+            tvSep.setLayoutParams(tvSepLay);
+            tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
+            tvSep.setHeight(1);
+
+            trSep.addView(tvSep);
+            table.addView(trSep, trParamsSep);
         }
 
 
