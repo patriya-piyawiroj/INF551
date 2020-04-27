@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">INF551</string>
+    <string-array name="country_hdrs">
+        <item>Population</item>
+        <item>CountryCode</item>
+        <item>ID</item>
+        <item>Name</item>
+        <item>District</item>
+    </string-array>
 </resources>
