@@ -82,7 +82,7 @@ public class ResultsActivity extends AppCompatActivity {
 //        query = dbRef.orderByChild("description").
 //                    equalTo(itemText.getText().toString());
 //        search = "Bangkok";
-        search = search.substring(0,1).toUpperCase() + search.substring(1).toLowerCase();
+        search = capitalizeString(search.toLowerCase());
         String name = " '" + search + "'";
 
         if (option.equals("2131230849")){
@@ -165,6 +165,20 @@ public class ResultsActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private static String capitalizeString(String string) {
+        char[] chars = string.toLowerCase().toCharArray();
+        boolean found = false;
+        for (int i = 0; i < chars.length; i++) {
+            if (!found && Character.isLetter(chars[i])) {
+                chars[i] = Character.toUpperCase(chars[i]);
+                found = true;
+            } else if (Character.isWhitespace(chars[i]) || chars[i]=='.' || chars[i]=='\'') { // You can add other chars here
+                found = false;
+            }
+        }
+        return String.valueOf(chars);
     }
 
 
