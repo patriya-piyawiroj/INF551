@@ -5,6 +5,7 @@ import com.example.inf551.R;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,30 +58,41 @@ public class ResultsActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         search = intent.getStringExtra("search");
+        String checked = intent.getStringExtra("checked");
+        Log.d(TAG, "Radio: " + checked);
         data = new ArrayList<DataSnapshot>();
 
         table = (TableLayout) findViewById(R.id.table);
         table.setStretchAllColumns(true);
         progressBar = new ProgressDialog(this);
-        startLoadData();
+        startLoadData(checked);
     }
 
-    public void startLoadData() {
+    public void startLoadData(String option) {
         progressBar.setCancelable(false);
         progressBar.setMessage("Fetching Invoices..");
         progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressBar.show();
-        getAll();
+        getAll(option);
     }
 
 
-    public void getAll()  {
+    public void getAll(String option)  {
         Query query;
 //        query = dbRef.orderByChild("description").
 //                    equalTo(itemText.getText().toString());
+//        search = "Bangkok";
+        String name = " '" + search + "'";
 
-        String cityname = " '" + search + "'";
-        query = dbRef.child("city").orderByChild(" Name").equalTo(cityname);
+        if (option.equals("2131230849")){
+            Log.d(TAG, "Search on city");
+            query = dbRef.child("city").orderByChild(" Name").equalTo(name);
+
+        }
+        else {
+            Log.d(TAG, "Search on country");
+            query = dbRef.child("country").orderByChild(" Name").equalTo(name);
+        }
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -128,6 +140,7 @@ public class ResultsActivity extends AppCompatActivity {
             // Set key here
             String key = country_hdrs[i];
             text1.setText(key);
+            text1.setBackgroundColor(Color.parseColor("#f8f8f8"));
             row.addView(text1);
 
             final TextView text2 = new TextView(this);
@@ -139,7 +152,7 @@ public class ResultsActivity extends AppCompatActivity {
             // Set value here
             Log.d(TAG, snapshot.toString());
             String value = snapshot.getValue().toString();
-//            String value = valueSnapshot.exists() ? valueSnapshot.getValue().toString() : "";//.toString();
+            text2.setBackgroundColor(Color.parseColor("#ffffff"));
             text2.setText(value);
             row.addView(text2);
 
