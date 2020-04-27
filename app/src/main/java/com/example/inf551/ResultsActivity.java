@@ -82,6 +82,7 @@ public class ResultsActivity extends AppCompatActivity {
 //        query = dbRef.orderByChild("description").
 //                    equalTo(itemText.getText().toString());
 //        search = "Bangkok";
+        search = search.substring(0,1).toUpperCase() + search.substring(1).toLowerCase();
         String name = " '" + search + "'";
 
         if (option.equals("2131230849")){
@@ -151,7 +152,11 @@ public class ResultsActivity extends AppCompatActivity {
 
             // Set value here
             Log.d(TAG, snapshot.toString());
-            String value = snapshot.getValue().toString();
+            String value = (String) snapshot.getValue();
+            StringBuilder formatter = new StringBuilder(value);
+            formatter.delete(0,2);
+            formatter.deleteCharAt(formatter.length()-1);
+            value = formatter.toString();
             text2.setBackgroundColor(Color.parseColor("#ffffff"));
             text2.setText(value);
             row.addView(text2);
