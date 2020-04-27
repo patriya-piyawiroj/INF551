@@ -1,0 +1,2 @@
+rootProject.name='INF551'
+include ':app'
