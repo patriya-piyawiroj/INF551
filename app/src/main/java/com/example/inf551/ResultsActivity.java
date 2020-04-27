@@ -78,7 +78,7 @@ public class ResultsActivity extends AppCompatActivity {
         Query query;
 //        query = dbRef.orderByChild("description").
 //                    equalTo(itemText.getText().toString());
-
+        search = search.substring(0,1).toUpperCase() + search.substring(1).toLowerCase();
         String cityname = " '" + search + "'";
         query = dbRef.child("city").orderByChild(" Name").equalTo(cityname);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
