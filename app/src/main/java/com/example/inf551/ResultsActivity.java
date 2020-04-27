@@ -138,7 +138,11 @@ public class ResultsActivity extends AppCompatActivity {
 
             // Set value here
             Log.d(TAG, snapshot.toString());
-            String value = snapshot.getValue().toString();
+            String value = (String) snapshot.getValue();
+            StringBuilder formatter = new StringBuilder(value);
+            formatter.delete(0,2);
+            formatter.deleteCharAt(formatter.length()-1);
+            value = formatter.toString();
 //            String value = valueSnapshot.exists() ? valueSnapshot.getValue().toString() : "";//.toString();
             text2.setText(value);
             row.addView(text2);
