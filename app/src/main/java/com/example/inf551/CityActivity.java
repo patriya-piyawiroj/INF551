@@ -1,106 +1,83 @@
 package com.example.inf551;
 
-import com.example.inf551.R;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.ViewGroup;
+import android.view.View;
 import android.widget.TableLayout;
-import android.widget.TableLayout.LayoutParams;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 
-public class ResultsActivity extends AppCompatActivity {
+public class CityActivity extends AppCompatActivity {
 
-    private static final String TAG = ResultsActivity.class.getSimpleName();
+    private static final String TAG = CityActivity.class.getSimpleName();
     private Context context;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference dbRef = database.getReference();
     TableLayout table;
-    String search = ""; // From search view
+    String search = "Los Angeles"; // From search view
     ArrayList<DataSnapshot> data ;
     ProgressDialog progressBar;
+    String countryCode = "";
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_results);
+        setContentView(R.layout.activity_city);
 
         Intent intent = getIntent();
-        search = intent.getStringExtra("search");
-        String checked = intent.getStringExtra("checked");
-        Log.d(TAG, "Radio: " + checked);
+        String searchIntent = intent.getStringExtra("search");
+        search = (searchIntent.isEmpty()) ? search : searchIntent;
+
         data = new ArrayList<DataSnapshot>();
 
         table = (TableLayout) findViewById(R.id.table);
         table.setStretchAllColumns(true);
+        TextView textview = (TextView) findViewById(R.id.searchText);
+        textview.setText(String.format("Search results for : %s (CITY)", search));
         progressBar = new ProgressDialog(this);
-        startLoadData(checked);
+        startLoadData();
     }
 
-    public void startLoadData(String option) {
+    public void startLoadData() {
         progressBar.setCancelable(false);
         progressBar.setMessage("Fetching Invoices..");
         progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressBar.show();
-        getAll(option);
+        getAll();
     }
 
 
-    public void getAll(String option)  {
+    public void getAll()  {
         Query query;
-//        query = dbRef.orderByChild("description").
-//                    equalTo(itemText.getText().toString());
-//        search = "Los Angeles";
-        search = capitalizeString(search.toLowerCase());
+        search = Utility.capitalizeString(search.toLowerCase());
         String name = " '" + search + "'";
-
-        if (option.equals("2131230849")){
-            Log.d(TAG, "Search on city");
-            query = dbRef.child("city").orderByChild(" Name").equalTo(name);
-
-        }
-        else {
-            Log.d(TAG, "Search on country");
-            query = dbRef.child("country").orderByChild(" Name").equalTo(name);
-        }
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        query = dbRef.child("city").orderByChild(" Name").equalTo(name);
+        query.addListenerForSingleValueEvent( new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> snapshotIterator = dataSnapshot.getChildren();
                 Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
-//                dataSnapshot = dataSnapshot.child("city");
-//                Iterable<DataSnapshot> snapshotIterator = dataSnapshot.getChildren();
-//                Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
                 while (iterator.hasNext()) {
                     DataSnapshot snapshot = (DataSnapshot) iterator.next();
                     data.add(snapshot);
@@ -122,45 +99,85 @@ public class ResultsActivity extends AppCompatActivity {
         progressBar.hide();
 
 
-        for (int n = 0; n < data.size(); n++) {
-            Iterable<DataSnapshot> snapshotIterator = data.get(n).getChildren();
+        for (int n = -1; n < data.size(); n++) {
+            Iterable<DataSnapshot> snapshotIterator = (n==-1) ? data.get(n+1).getChildren() : data.get(n).getChildren() ;
             Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
 
-            while (iterator.hasNext()) {
+            boolean isNotHeader = true;
+            while (iterator.hasNext() && isNotHeader) {
+                if (n == -1) {isNotHeader = false;};
                 DataSnapshot snapshot = (DataSnapshot) iterator.next();
+                int padding = 8;
 
                 final TableRow row = new TableRow(this);
                 row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+                row.setWeightSum(2);
 
                 final TextView text1 = new TextView(this);
-                text1.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                text1.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
                 text1.setGravity(Gravity.CENTER);
                 text1.setTextSize(18);
-                text1.setPadding(5, 5, 5, 5);
+                text1.setPadding(padding, padding, padding, padding);
 
                 // Set key here
                 String key = (String) snapshot.getKey();
-                //    String key = country_hdrs[i];
-                text1.setText(key);
-                text1.setBackgroundColor(Color.parseColor("#f8f8f8"));
+                if (n == -1) {
+                    text1.setText(" ");
+                    text1.setBackgroundColor(Color.parseColor("#f0f0f0"));
+                } else {
+                    text1.setText(key);
+                    text1.setBackgroundColor(Color.parseColor("#f8f8f8"));
+                }
                 row.addView(text1);
 
                 final TextView text2 = new TextView(this);
-                text2.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                text2.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
                 text2.setGravity(Gravity.CENTER);
                 text2.setTextSize(18);
-                text2.setPadding(5, 5, 5, 5);
+                text2.setPadding(padding, padding, padding, padding);
 
                 // Set value here
-                Log.d(TAG, snapshot.toString());
-                String value = (String) snapshot.getValue();
-                StringBuilder formatter = new StringBuilder(value);
-                formatter.delete(0, 2);
-                formatter.deleteCharAt(formatter.length() - 1);
-                value = formatter.toString();
-                text2.setBackgroundColor(Color.parseColor("#ffffff"));
-                text2.setText(value);
+                if (n == -1) {
+                    text2.setText("Countries");
+                    text2.setBackgroundColor(Color.parseColor("#f0f0f0"));
+                } else {
+                    String value = (String) snapshot.getValue();
+                    StringBuilder formatter = new StringBuilder(value);
+                    formatter.delete(0, 2);
+                    formatter.deleteCharAt(formatter.length() - 1);
+                    value = formatter.toString();
+                    text2.setBackgroundColor(Color.parseColor("#ffffff"));
+                    text2.setText(value);
+
+//                    if (key.compareTo(" CountryCode") == 0) {
+//                        countryCode = value;
+//                    }
+                }
                 row.addView(text2);
+                row.setTag(n);
+
+                // Add onclick listener to go to next page
+                if (n > -1) {
+                    row.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            int tag = (Integer) v.getTag();
+                            Iterable<DataSnapshot> snapshotIterator = data.get(tag).getChildren() ;
+                            Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
+                            String code = "";
+                            while (iterator.hasNext()) {
+                                DataSnapshot snapshot = (DataSnapshot) iterator.next();
+                                if (snapshot.getKey().compareTo(" CountryCode") == 0) {
+                                    code = (String) snapshot.getValue();
+                                }
+                            }
+                            Intent intent = new Intent(CityActivity.this, CountryActivity.class);
+                            intent.putExtra("search", "");
+                            intent.putExtra("searchByCode", true);
+                            intent.putExtra("countryCode", code);
+                            startActivity(intent);
+                        }
+                    });
+                }
 
                 table.addView(row);
             }
@@ -184,20 +201,6 @@ public class ResultsActivity extends AppCompatActivity {
         }
 
 
-    }
-
-    private static String capitalizeString(String string) {
-        char[] chars = string.toLowerCase().toCharArray();
-        boolean found = false;
-        for (int i = 0; i < chars.length; i++) {
-            if (!found && Character.isLetter(chars[i])) {
-                chars[i] = Character.toUpperCase(chars[i]);
-                found = true;
-            } else if (Character.isWhitespace(chars[i]) || chars[i]=='.' || chars[i]=='\'') { // You can add other chars here
-                found = false;
-            }
-        }
-        return String.valueOf(chars);
     }
 
 
