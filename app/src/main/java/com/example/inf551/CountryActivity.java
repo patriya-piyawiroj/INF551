@@ -131,7 +131,7 @@ public class CountryActivity extends AppCompatActivity {
 
                 if (key.contains("Name")){
                     countryName = snapshot.getValue().toString().replace("'","");
-                    textview.setText(String.format("Search results for : %s (COUNTRY)", countryName));
+                    textview.setText(String.format("Search results for: %s (COUNTRY)", countryName));
                 }
 
                 if (n == -1) {
