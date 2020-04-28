@@ -9,6 +9,10 @@ import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.SearchView;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     @Override
@@ -18,7 +22,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void onClick(View view) {
+
+    public void onClick(View view) throws Exception {
+        new JsonReader().test();
         // Do something in response to button click
         SearchView searchView = findViewById(R.id.searchView);
         searchView.setIconified(false);

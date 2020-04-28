@@ -46,7 +46,6 @@ public class ResultsActivity extends AppCompatActivity {
     TableLayout table;
     String search = ""; // From search view
     ArrayList<DataSnapshot> data ;
-    String[] country_hdrs = {"Country", "District", "ID", "Name","Population"};
     ProgressDialog progressBar;
 
 
@@ -81,7 +80,7 @@ public class ResultsActivity extends AppCompatActivity {
         Query query;
 //        query = dbRef.orderByChild("description").
 //                    equalTo(itemText.getText().toString());
-        search = "Los Angeles";
+//        search = "Los Angeles";
         search = capitalizeString(search.toLowerCase());
         String name = " '" + search + "'";
 
@@ -127,7 +126,7 @@ public class ResultsActivity extends AppCompatActivity {
             Iterable<DataSnapshot> snapshotIterator = data.get(n).getChildren();
             Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
 
-            for (int i = 0; i < country_hdrs.length; i++) {
+            while (iterator.hasNext()) {
                 DataSnapshot snapshot = (DataSnapshot) iterator.next();
 
                 final TableRow row = new TableRow(this);
