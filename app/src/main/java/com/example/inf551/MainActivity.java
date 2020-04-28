@@ -4,8 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SearchView;
 
@@ -19,16 +19,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClick(View view) {
-        // Do something in response to button click
         SearchView searchView = findViewById(R.id.searchView);
         searchView.setIconified(false);
+        String search = searchView.getQuery().toString();
+
         RadioGroup rg = (RadioGroup) findViewById(R.id.radioCat);
         int checked = rg.getCheckedRadioButtonId();
-        String check = String.valueOf(checked);
-        String search = searchView.getQuery().toString();
-        Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
-        intent.putExtra("search", search);
-        intent.putExtra("checked", check);
-        startActivity(intent);
+
+
+        if (checked == R.id.radio1) {
+            Intent intent = new Intent(MainActivity.this, CityActivity.class);
+            intent.putExtra("search", search);
+            startActivity(intent);
+        } else if (checked == R.id.radio2){
+            Intent intent = new Intent(MainActivity.this, CountryActivity.class);
+            intent.putExtra("searchByCode", false);
+            intent.putExtra("search", search);
+            startActivity(intent);
+        }
     }
+
 }
