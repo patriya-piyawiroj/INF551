@@ -33,6 +33,8 @@ public class JsonReader {
     Map <Integer, String> idMap = new HashMap<Integer, String>();  // Maps id to name
     ArrayList<Node> links = new ArrayList<Node>(); // Shows links between ids
 
+    public boolean initialised = false;
+
     private class Node {
         public Integer parent;
         public Integer child;
@@ -60,6 +62,14 @@ public class JsonReader {
             Map.Entry<String, ArrayList<Integer>> entry = iterator.next();
             String format = String.format("[%s, %s]", entry.getKey(), entry.getValue().toString());
             System.out.println(format);
+        }
+    }
+
+    public ArrayList<String> search(String term) {
+        if (initialised) {
+            return getTerms(term);
+        } else {
+            return null;
         }
     }
 
@@ -201,25 +211,25 @@ public class JsonReader {
                     }
                 }
 //                JSONObject json = new JSONObject("{\"balance\": 1000.21, \"num\":100, \"is_vip\":true, \"name\":\"foo\"}");
-                printMap();
-                ArrayList<Integer> test = new ArrayList<Integer>();
-                test.add(null);
-                test.add(2590);
-                test.add(1456);
-                test.add(3304);
-                test.add(1561);
-                System.out.println(translate(test));
-
-                // los; [179, 823, 857, 881, 3203, 3281, 3407, 4514, 4845, 5062]]
-                System.out.println("Links:");
-                System.out.println(links);
-
-                System.out.println(traceChild(179));
-                System.out.println(traceParent(179));
-                System.out.println(trace(179));
-
-                // 1097, 2411, 3685, 5061]
-                System.out.println(getTerms("los"));
+//                printMap();
+//                ArrayList<Integer> test = new ArrayList<Integer>();
+//                test.add(null);
+//                test.add(2590);
+//                test.add(1456);
+//                test.add(3304);
+//                test.add(1561);
+//                System.out.println(translate(test));
+//
+//                // los; [179, 823, 857, 881, 3203, 3281, 3407, 4514, 4845, 5062]]
+//                System.out.println("Links:");
+//                System.out.println(links);
+//
+//                System.out.println(traceChild(179));
+//                System.out.println(traceParent(179));
+//                System.out.println(trace(179));
+//
+//                // 1097, 2411, 3685, 5061]
+//                System.out.println(getTerms("los"));
 //                System.out.println(array.length());
 //                System.out.println(map.size());
                 return null;
@@ -238,7 +248,7 @@ public class JsonReader {
         }
 
         protected void onPostExecute(JSONObject result) {
-
+            initialised = true;
         }
     }
 }

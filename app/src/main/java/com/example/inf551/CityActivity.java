@@ -32,7 +32,10 @@ public class CityActivity extends AppCompatActivity {
     private Context context;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference dbRef = database.getReference();
+
     TableLayout table;
+    TextView textview;
+
     String search = "Los Angeles"; // From search view
     ArrayList<DataSnapshot> data ;
     ProgressDialog progressBar;
@@ -53,7 +56,7 @@ public class CityActivity extends AppCompatActivity {
 
         table = (TableLayout) findViewById(R.id.table);
         table.setStretchAllColumns(true);
-        TextView textview = (TextView) findViewById(R.id.searchText);
+        textview = (TextView) findViewById(R.id.searchText);
         textview.setText(String.format("Search results for : %s (CITY)", search));
         progressBar = new ProgressDialog(this);
         startLoadData();
@@ -98,6 +101,10 @@ public class CityActivity extends AppCompatActivity {
         table.removeAllViews();
         progressBar.hide();
 
+        if (data.isEmpty()) {
+            textview.setText("No results found");
+            return;
+        }
 
         for (int n = -1; n < data.size(); n++) {
             Iterable<DataSnapshot> snapshotIterator = (n==-1) ? data.get(n+1).getChildren() : data.get(n).getChildren() ;

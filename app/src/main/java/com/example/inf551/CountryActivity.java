@@ -1,5 +1,6 @@
 package com.example.inf551;
 
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -26,15 +27,25 @@ import java.util.Iterator;
 
 public class CountryActivity extends AppCompatActivity {
 
+    public class CityOnClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(CountryActivity.this, CityActivity.class);
+            intent.putExtra("search", (String) v.getTag());
+            startActivity(intent);
+        }
+    }
+
     public static final String TAG = CountryActivity.class.getSimpleName();
 
     String search = "Thailand";
     String countryCode = "";
     String countryName = "";
     boolean searchByCode = false;
+    ArrayList<String> cities = new ArrayList<String>();
+    ArrayList<String> languages = new ArrayList<String>();
 
     ArrayList<DataSnapshot> data ;
-
 
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -42,7 +53,9 @@ public class CountryActivity extends AppCompatActivity {
 
     ProgressDialog progressBar;
     TableLayout table;
+    TableLayout table2;
     TextView textview;
+    TextView languageText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +71,15 @@ public class CountryActivity extends AppCompatActivity {
         data = new ArrayList<DataSnapshot>();
 
         table = (TableLayout) findViewById(R.id.countryTable);
+        table2 = (TableLayout) findViewById(R.id.cityTable);
         table.setStretchAllColumns(true);
         textview = (TextView) findViewById(R.id.searchText);
+        textview.setVisibility(View.INVISIBLE);
+        languageText = (TextView) findViewById(R.id.languagesText);
+        languageText.setVisibility(View.INVISIBLE);
+
         progressBar = new ProgressDialog(this);
+//        table2 = (TableLayout) findViewById(R.id.cityTable);
         startLoadData();
     }
 
@@ -72,12 +91,127 @@ public class CountryActivity extends AppCompatActivity {
         getAll();
     }
 
+    private void queryCity(){
+        Query query;
+        System.out.println(countryCode);
+        query = dbRef.child("city").orderByChild(" CountryCode").equalTo(" "+countryCode);
+        query.addListenerForSingleValueEvent( new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> snapshotIterator = dataSnapshot.getChildren();
+                Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
+                while (iterator.hasNext()) {
+                    DataSnapshot snapshot = (DataSnapshot) iterator.next();
+                    //    data.add(snapshot);
+                    cities.add(snapshot.child(" Name").getValue().toString().substring(1));
+                    //    Log.d(TAG, snapshot.child(" Name").getValue().toString());
+                }
+                setCities();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void queryLanguage(){
+        Query query;
+        System.out.println("In language: " + countryCode);
+        query = dbRef.child("countrylanguage").orderByChild(" CountryCode").equalTo(countryCode);
+        query.addListenerForSingleValueEvent( new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> snapshotIterator = dataSnapshot.getChildren();
+                Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
+                while (iterator.hasNext()) {
+                    DataSnapshot snapshot = (DataSnapshot) iterator.next();
+                    //    data.add(snapshot);
+                    //  cities.add(snapshot.child(" Name").getValue().toString().substring(1));
+                    Log.d(TAG, snapshot.child(" Language").getValue().toString());
+                    String language = (String) snapshot.child(" Language").getValue();
+                    languages.add(language);
+                }
+                setLanguage();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void setLanguage() {
+        languageText.setVisibility(View.VISIBLE);
+        if (languages.isEmpty()) {
+            languageText.setText("No languages found");
+            return;
+        }
+        String text = "Languages: ";
+        Iterator<String> it = languages.iterator();
+        String language = it.next();
+        text += language;
+        while (it.hasNext()) {
+            text += ", ";
+            text += it.next();
+        }
+        languageText.setText(text);
+    }
+
+    private void setCities(){
+        table2.removeAllViews();
+
+        int padding = 5;
+
+        final TableRow header = new TableRow(this);
+        header.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+        final TextView headerText = new TextView(this);
+        headerText.setText("Cities in " + countryName);
+        headerText.setGravity(Gravity.CENTER);
+        headerText.setBackgroundColor(Color.parseColor("#f0f0f0"));
+        TableRow.LayoutParams layout = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                TableRow.LayoutParams.WRAP_CONTENT);
+        layout.span = 4;
+        headerText.setLayoutParams(layout);
+        header.addView(headerText);
+        table2.addView(header);
+
+        for (int i = 0; i < cities.size();){
+            final TableRow row = new TableRow(this);
+            row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+
+            for (int j=0; j<2; j++) {
+                if (i>=cities.size()) {continue;}
+                final TextView text1 = new TextView(this);
+                text1.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+                text1.setGravity(Gravity.CENTER);
+                text1.setTextSize(18);
+                text1.setPadding(padding, padding, padding, padding);
+                text1.setBackgroundColor(Color.parseColor("#ffffff"));
+
+                String city = cities.get(i);
+                city = city.substring(1, city.length()-1);
+                text1.setText(city);
+                text1.setTag(city);
+                text1.setOnClickListener(new CityOnClickListener());
+                row.addView(text1);
+                i++;
+            }
+            table2.addView(row);
+        }
+
+    }
+
+
     public void getAll() {
         Query query;
 
         if (searchByCode) {
             String name = countryCode.substring(1);
             query = dbRef.child("country").orderByChild(" Code").equalTo(name);
+
         } else {
             search = Utility.capitalizeString(search.toLowerCase());
             String name = " '" + search + "'";
@@ -93,7 +227,7 @@ public class CountryActivity extends AppCompatActivity {
                     data.add(snapshot);
                     Log.d(TAG, dataSnapshot.toString());
                 }
-                populateTable();
+                setCountry();
             }
 
             @Override
@@ -103,8 +237,9 @@ public class CountryActivity extends AppCompatActivity {
         });
     }
 
-    public void populateTable() {
+    public void setCountry() {
         table.removeAllViews();
+        textview.setVisibility(View.VISIBLE);
         progressBar.hide();
 
         for (int n = -1; n < data.size(); n++) {
@@ -132,6 +267,10 @@ public class CountryActivity extends AppCompatActivity {
                 if (key.contains("Name")){
                     countryName = snapshot.getValue().toString().replace("'","");
                     textview.setText(String.format("Search results for: %s (COUNTRY)", countryName));
+                }
+
+                if (key.equals(" Code")){
+                    countryCode = snapshot.getValue().toString();
                 }
 
                 if (n == -1) {
@@ -196,5 +335,7 @@ public class CountryActivity extends AppCompatActivity {
             trSep.addView(tvSep);
             table.addView(trSep, trParamsSep);
         }
+        queryLanguage();
+        queryCity();
     }
 }
