@@ -63,8 +63,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (checked == R.id.radio1) {
             Intent intent = new Intent(MainActivity.this, CityActivity.class);
-            intent.putExtra("search", search);
-
+            int idx = search.indexOf("(");
+            String city = search.substring(0, idx-1);
+            String code = search.substring(idx+1, idx+4);
+            intent.putExtra("city", city);
+            intent.putExtra("code", code);
             startActivity(intent);
         } else if (checked == R.id.radio2){
             Intent intent = new Intent(MainActivity.this, CountryActivity.class);

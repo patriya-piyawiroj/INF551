@@ -31,7 +31,8 @@ public class CountryActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(CountryActivity.this, CityActivity.class);
-            intent.putExtra("search", (String) v.getTag());
+            intent.putExtra("city", (String) v.getTag());
+            intent.putExtra("code", countryCode.substring(1, countryCode.length()-1));
             startActivity(intent);
         }
     }
@@ -144,6 +145,9 @@ public class CountryActivity extends AppCompatActivity {
     }
 
     private void setLanguage() {
+        if (data.isEmpty()) {
+            return;
+        }
         languageText.setVisibility(View.VISIBLE);
         if (languages.isEmpty()) {
             languageText.setText("No languages found");
@@ -162,6 +166,9 @@ public class CountryActivity extends AppCompatActivity {
 
     private void setCities(){
         table2.removeAllViews();
+        if (data.isEmpty()) {
+            return;
+        }
 
         int padding = 5;
 
@@ -241,6 +248,11 @@ public class CountryActivity extends AppCompatActivity {
         table.removeAllViews();
         textview.setVisibility(View.VISIBLE);
         progressBar.hide();
+
+        if (data.isEmpty()) {
+            textview.setText("No results found");
+            return;
+        }
 
         for (int n = -1; n < data.size(); n++) {
             Iterable<DataSnapshot> snapshotIterator = (n==-1) ? data.get(n+1).getChildren() : data.get(n).getChildren() ;

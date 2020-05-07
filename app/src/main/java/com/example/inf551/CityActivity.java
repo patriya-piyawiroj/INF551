@@ -36,10 +36,11 @@ public class CityActivity extends AppCompatActivity {
     TableLayout table;
     TextView textview;
 
-    String search = "Los Angeles"; // From search view
+    String city = "Los Angeles"; // From search view
+    String code = "";
+
     ArrayList<DataSnapshot> data ;
     ProgressDialog progressBar;
-    String countryCode = "";
 
 
 
@@ -49,15 +50,17 @@ public class CityActivity extends AppCompatActivity {
         setContentView(R.layout.activity_city);
 
         Intent intent = getIntent();
-        String searchIntent = intent.getStringExtra("search");
-        search = (searchIntent.isEmpty()) ? search : searchIntent;
+        String searchIntent = intent.getStringExtra("city");
+        city = (searchIntent.isEmpty()) ? city : searchIntent;
+        String codeIntent = intent.getStringExtra("code");
+        code = (codeIntent == null) ? code : codeIntent;
 
         data = new ArrayList<DataSnapshot>();
 
         table = (TableLayout) findViewById(R.id.table);
         table.setStretchAllColumns(true);
         textview = (TextView) findViewById(R.id.searchText);
-        textview.setText(String.format("Search results for : %s (CITY)", search));
+        textview.setText(String.format("Search results for : %s (CITY)", city));
         progressBar = new ProgressDialog(this);
         startLoadData();
     }
@@ -73,8 +76,8 @@ public class CityActivity extends AppCompatActivity {
 
     public void getAll()  {
         Query query;
-        search = Utility.capitalizeString(search.toLowerCase());
-        String name = " '" + search + "'";
+        city = Utility.capitalizeString(city.toLowerCase());
+        String name = " '" + city + "'";
         query = dbRef.child("city").orderByChild(" Name").equalTo(name);
         query.addListenerForSingleValueEvent( new ValueEventListener() {
             @Override
@@ -83,8 +86,12 @@ public class CityActivity extends AppCompatActivity {
                 Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
                 while (iterator.hasNext()) {
                     DataSnapshot snapshot = (DataSnapshot) iterator.next();
-                    data.add(snapshot);
-                    Log.d(TAG, dataSnapshot.toString());
+                    String cc = snapshot.child(" CountryCode").getValue().toString();
+                    cc = cc.substring(2,5);
+                    if (cc.equalsIgnoreCase(code)) {
+                        data.add(snapshot);
+                        Log.d(TAG, dataSnapshot.toString());
+                    }
                 }
                 populateTable();
             }
