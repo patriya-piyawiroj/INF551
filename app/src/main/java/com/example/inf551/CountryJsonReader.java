@@ -1,5 +1,6 @@
 package com.example.inf551;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -21,7 +22,9 @@ public class CountryJsonReader {
 
     public boolean initialised = false;
 
-    public CountryJsonReader() {
+    Context context;
+    public CountryJsonReader(Context context) {
+        this.context = context;
         new CountryJsonReader.RetrieveFeedTask().execute("");
     }
 
@@ -80,7 +83,12 @@ public class CountryJsonReader {
         }
 
         protected void onPostExecute(JSONObject result) {
-            initialised = true;
+            String toWrite = SerializeObject.objectToString(countries);
+            if (toWrite != null && !toWrite.equalsIgnoreCase("")) {
+                SerializeObject.WriteSettings(context, toWrite, "countryList.dat");
+            } else {
+                SerializeObject.WriteSettings(context, "", "countryList.dat");
+            }
         }
     }
 }
