@@ -35,6 +35,10 @@ public class JsonReader {
 
     public boolean initialised = false;
 
+    public JsonReader() {
+        new RetrieveFeedTask().execute("");
+    }
+
     private class Node {
         public Integer parent;
         public Integer child;
@@ -97,6 +101,7 @@ public class JsonReader {
     public ArrayList<String> getTerms(String searchTerm) {
         ArrayList<String> strings = new ArrayList<String>();
         ArrayList<Integer> list = nameMap.get(searchTerm);
+        if (list == null) {return strings;};
         for (Integer word : list) {
           strings.add(trace(word));
         }
@@ -182,6 +187,8 @@ public class JsonReader {
                 for (int i = 0 ; i < array.length(); i++ ) {
                     JSONObject json = (JSONObject) array.get(i);
                     String key = json.get(" Name").toString().substring(1);
+                    String country = json.get(" CountryCode").toString().substring(1);
+                    key += " {usa} ";
                     key = key.substring(1, key.length()-1).toLowerCase();
                     String value = json.get(" ID").toString();
                     value = value.substring(1, value.length()-1);
@@ -210,28 +217,7 @@ public class JsonReader {
                         position++;
                     }
                 }
-//                JSONObject json = new JSONObject("{\"balance\": 1000.21, \"num\":100, \"is_vip\":true, \"name\":\"foo\"}");
-//                printMap();
-//                ArrayList<Integer> test = new ArrayList<Integer>();
-//                test.add(null);
-//                test.add(2590);
-//                test.add(1456);
-//                test.add(3304);
-//                test.add(1561);
-//                System.out.println(translate(test));
-//
-//                // los; [179, 823, 857, 881, 3203, 3281, 3407, 4514, 4845, 5062]]
-//                System.out.println("Links:");
-//                System.out.println(links);
-//
-//                System.out.println(traceChild(179));
-//                System.out.println(traceParent(179));
-//                System.out.println(trace(179));
-//
-//                // 1097, 2411, 3685, 5061]
-//                System.out.println(getTerms("los"));
-//                System.out.println(array.length());
-//                System.out.println(map.size());
+
                 return null;
             } catch (JSONException e) {
                 e.printStackTrace();
