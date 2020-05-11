@@ -88,7 +88,7 @@ public class CityActivity extends AppCompatActivity {
                     DataSnapshot snapshot = (DataSnapshot) iterator.next();
                     String cc = snapshot.child(" CountryCode").getValue().toString();
                     cc = cc.substring(2,5);
-                    if (cc.equalsIgnoreCase(code)) {
+                    if (cc.equalsIgnoreCase(code) || code == "") {
                         data.add(snapshot);
                         Log.d(TAG, dataSnapshot.toString());
                     }
