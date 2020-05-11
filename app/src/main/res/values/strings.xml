@@ -7,7 +7,15 @@
         <item>Name</item>
         <item>District</item>
     </string-array>
+    <string-array name="year_arrays">
+        <item>2015</item>
+        <item>2016</item>
+        <item>2017</item>
+        <item>2018</item>
+        <item>2019</item>
+    </string-array>
     <string name="search_button">Search</string>
+    <string name="year_prompt">Select the year</string>
     <string name="radio_city">search by city</string>
     <string name="radio_country">search by country</string>
 </resources>

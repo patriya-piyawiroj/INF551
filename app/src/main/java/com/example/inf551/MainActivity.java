@@ -1,23 +1,14 @@
 package com.example.inf551;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.RadioGroup;
 import android.widget.AutoCompleteTextView;
+import android.widget.Spinner;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> countries;
     CityJsonReader cityReader;
     CountryJsonReader countryReader;
+    private Spinner yearSpinner;
 
 
     private void createList() {
@@ -56,11 +48,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         createList();
+        yearSpinner = (Spinner) findViewById(R.id.spinner1);
         searchView = (AutoCompleteTextView) findViewById(R.id.searchView);
         ArrayAdapter<String> cityAdapter = new ArrayAdapter<String>
                 (this, android.R.layout.simple_list_item_1, cities);
         searchView.setAdapter(cityAdapter);//setting the adapter data into the AutoCompleteTextView
         searchView.setThreshold(3);
+        searchView.setHint("type a city here");
     }
 
     public void radioChanged(View view) {
@@ -71,16 +65,19 @@ public class MainActivity extends AppCompatActivity {
                     (this, android.R.layout.simple_list_item_1, cities);
             searchView.setAdapter(cityAdapter);//setting the adapter data into the AutoCompleteTextView
             searchView.setThreshold(3);
+            searchView.setHint("type a city here");
         } else if (checked == R.id.radio2){
             ArrayAdapter<String> countryAdapter = new ArrayAdapter<String>
                     (this, android.R.layout.simple_list_item_1, countries);
             searchView.setAdapter(countryAdapter);//setting the adapter data into the AutoCompleteTextView
             searchView.setThreshold(3);
+            searchView.setHint("type a country here");
         }
     }
 
     public void onClick(View view) throws Exception {
         String search = searchView.getText().toString();
+        String year = yearSpinner.getSelectedItem().toString();
 
         RadioGroup rg = (RadioGroup) findViewById(R.id.radioCat);
         int checked = rg.getCheckedRadioButtonId();
@@ -88,16 +85,23 @@ public class MainActivity extends AppCompatActivity {
 
         if (checked == R.id.radio1) {
             Intent intent = new Intent(MainActivity.this, CityActivity.class);
+
             int idx = search.indexOf("(");
-            String city = search.substring(0, idx-1);
-            String code = search.substring(idx+1, idx+4);
-            intent.putExtra("city", city);
-            intent.putExtra("code", code);
-            startActivity(intent);
+            if (idx == -1) {
+                intent.putExtra("city", search);
+                startActivity(intent);
+            } else {
+                String city = search.substring(0, idx - 1);
+                String code = search.substring(idx + 1, idx + 4);
+                intent.putExtra("city", city);
+                intent.putExtra("code", code);
+                startActivity(intent);
+            }
         } else if (checked == R.id.radio2){
             Intent intent = new Intent(MainActivity.this, CountryActivity.class);
             intent.putExtra("searchByCode", false);
             intent.putExtra("search", search);
+            intent.putExtra("year", year);
             startActivity(intent);
         }
     }
